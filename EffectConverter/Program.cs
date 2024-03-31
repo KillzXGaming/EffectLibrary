@@ -9,6 +9,16 @@ namespace EffectConverter
     {
         public static void Main(string[] args)
         {
+            if (args.Length == 0)
+            {
+                Console.WriteLine($"Tool by KillzXGaming");
+                Console.WriteLine($"To use, drag/drop a ptcl or eff file on exe to dump the contents");
+                Console.WriteLine($"Drag/drop the folder to create a new ptcl");
+                Console.WriteLine($"Dumped files can be swapped and edited");
+                Console.ReadLine();
+                return;
+            }
+
             foreach (var arg in args)
             {
                 //process particle file
