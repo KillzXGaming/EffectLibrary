@@ -109,10 +109,11 @@ namespace EffectLibrary.Tools
             }
 
             emitter.Data.ShaderReferences.ShaderIndex = ptcl.Shaders.BnshFile.Variations.Count;
-
-            string shader_path         = Path.Combine(dir, "Shader.bnsh");
-            string user_shader_path    = Path.Combine(dir, "UserShader.bnsh");
-            string compute_shader_path = Path.Combine(dir, "ComputeShader.bnsh");
+             
+            string shader_path          = Path.Combine(dir, "Shader.bnsh");
+            string user_shader1_path    = Path.Combine(dir, "UserShader1.bnsh");
+            string user_shader2_path    = Path.Combine(dir, "UserShader2.bnsh");
+            string compute_shader_path  = Path.Combine(dir, "ComputeShader.bnsh");
 
             if (File.Exists(shader_path))
             {
@@ -122,11 +123,19 @@ namespace EffectLibrary.Tools
             else
                 throw new Exception($"No shader present for emitter!");
             
-            if (File.Exists(user_shader_path))
+            if (File.Exists(user_shader1_path))
             {
                 emitter.Data.ShaderReferences.UserShaderIndex1 = ptcl.Shaders.BnshFile.Variations.Count;
 
-                var shader = new BnshFile(user_shader_path);
+                var shader = new BnshFile(user_shader1_path);
+                ptcl.Shaders.BnshFile.Variations.Add(shader.Variations[0]);
+            }
+
+            if (File.Exists(user_shader2_path))
+            {
+                emitter.Data.ShaderReferences.UserShaderIndex2 = ptcl.Shaders.BnshFile.Variations.Count;
+
+                var shader = new BnshFile(user_shader2_path);
                 ptcl.Shaders.BnshFile.Variations.Add(shader.Variations[0]);
             }
 

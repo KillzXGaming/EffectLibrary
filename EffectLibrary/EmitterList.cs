@@ -10,6 +10,9 @@ using System.Reflection.PortableExecutable;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using static BfresLibrary.Swizzling.GX2;
+using static EffectLibrary.NamcoEffectFile;
+using static System.Net.WebRequestMethods;
 
 namespace EffectLibrary
 {
@@ -269,7 +272,10 @@ namespace EffectLibrary
 
 
             reader.SeekBegin(pos + 0x910 + offset);
-            Data.ShaderReferences = reader.ReadStruct<ShaderReferences>();
+            Data.ShaderReferences = new ShaderReferences();
+            Data.ShaderReferences.Read(reader, PtclHeader);
+
+            Console.WriteLine(Data.ShaderReferences.ToString());
 
             reader.SeekBegin(pos + 0x99C + offset);
             reader.BaseStream.Read(Utils.AsSpan(ref Data.ParticleColor));
@@ -315,7 +321,7 @@ namespace EffectLibrary
             writer.BaseStream.Write(Utils.AsSpan(ref Data.ParticleData));
 
             writer.Seek((int)pos + 0x910, SeekOrigin.Begin);
-            writer.WriteStruct(Data.ShaderReferences);
+            Data.ShaderReferences.Write(writer, PtclHeader);
 
             writer.Seek((int)pos + 0x99C, SeekOrigin.Begin);
             writer.BaseStream.Write(Utils.AsSpan(ref Data.ParticleColor));
@@ -360,12 +366,20 @@ namespace EffectLibrary
             return this.PtclHeader.Shaders.TryGetShader(this.Data.ShaderReferences.ShaderIndex);
         }
 
-        public BnshFile.ShaderVariation GetUserShaderBinary()
+        public BnshFile.ShaderVariation GetUser1ShaderBinary()
         {
             if (this.Data.ShaderReferences.ShaderIndex == this.Data.ShaderReferences.UserShaderIndex1)
                 return null;
 
             return this.PtclHeader.Shaders.TryGetShader(this.Data.ShaderReferences.UserShaderIndex1);
+        }
+
+        public BnshFile.ShaderVariation GetUser2ShaderBinary()
+        {
+            if (this.Data.ShaderReferences.UserShaderIndex2 == 0)
+                return null;
+
+            return this.PtclHeader.Shaders.TryGetShader(this.Data.ShaderReferences.UserShaderIndex2);
         }
 
         public BnshFile.ShaderVariation GetComputeShaderBinary()
@@ -657,7 +671,6 @@ namespace EffectLibrary
         public int EmitterDistParticlesMax;
     }
 
-    [StructLayout(LayoutKind.Sequential, Size = 0x10)]
     public class ShaderReferences
     {
         public byte Type;
@@ -669,16 +682,14 @@ namespace EffectLibrary
         public int ComputeShaderIndex; //seems to index the compute shader list
 
         public int UserShaderIndex1; //User shader
-        public int val_0x10; //0
+        public int UserShaderIndex2; //User shader (used by SP2 and SMO)
 
-        public int UserShaderIndex2; //A second user shader (used in SMO)
-        public int val_0x18; //0
-
+        public int val_0x10;
         public int val_0x14; //0
+        public int val_0x18; //0
         public int val_0x1C; //0
         public int val_0x20; //0
         public int val_0x24; //0
-        public int val_0x28; //0
 
         public int ExtraShaderIndex2; //another shader?
 
@@ -689,7 +700,65 @@ namespace EffectLibrary
 
         public override string ToString()
         {
-            return $"{ShaderIndex} {ComputeShaderIndex} {UserShaderIndex1} ";
+            return $"{ShaderIndex} {ComputeShaderIndex} {UserShaderIndex1} {UserShaderIndex2}";
+        }
+
+        public void Read(BinaryReader reader, PtclFile file)
+        {
+            Type = reader.ReadByte();
+            val_0x2 = reader.ReadByte();
+            val_0x3 = reader.ReadByte();
+            val_0x4 = reader.ReadByte();
+
+            ShaderIndex = reader.ReadInt32();
+            ComputeShaderIndex = reader.ReadInt32();
+            UserShaderIndex1 = reader.ReadInt32();
+
+            if (file.Header.VFXVersion <= 0x15)
+                reader.ReadInt32(); //0
+
+            UserShaderIndex2 = reader.ReadInt32();
+            val_0x10 = reader.ReadInt32();
+            val_0x14 = reader.ReadInt32();
+            val_0x18 = reader.ReadInt32();
+            val_0x1C = reader.ReadInt32();
+            val_0x20 = reader.ReadInt32();
+
+            if (file.Header.VFXVersion <= 0x15)
+                val_0x24 = reader.ReadInt32();
+
+            ExtraShaderIndex2 = reader.ReadInt32();
+            val_0x34 = reader.ReadInt32();
+            Params = reader.ReadUInt16s(32);
+        }
+
+        public void Write(BinaryWriter writer, PtclFile file)
+        {
+            writer.Write((byte)Type);
+            writer.Write((byte)val_0x2);
+            writer.Write((byte)val_0x3);
+            writer.Write((byte)val_0x4);
+
+            writer.Write(ShaderIndex);
+            writer.Write(ComputeShaderIndex);
+            writer.Write(UserShaderIndex1);
+            if (file.Header.VFXVersion <= 0x15)
+                writer.Write(0);
+            writer.Write(UserShaderIndex2);
+            writer.Write(val_0x10);
+            writer.Write(val_0x14);
+            writer.Write(val_0x18);
+            writer.Write(val_0x1C);
+            writer.Write(val_0x20);
+
+            if (file.Header.VFXVersion <= 0x15)
+                writer.Write(val_0x24);
+
+            writer.Write(ExtraShaderIndex2);
+            writer.Write(val_0x34);
+
+            for (int i = 0; i < Params.Length; i++)
+                writer.Write(Params[i]);
         }
     }
 

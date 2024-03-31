@@ -56,11 +56,13 @@ namespace EffectLibrary.Tools
 
             var shader = emitter.GetShaderBinary();
             var shader_compute = emitter.GetComputeShaderBinary();
-            var shader_user = emitter.GetUserShaderBinary();
+            var shader_user1 = emitter.GetUser1ShaderBinary();
+            var shader_user2 = emitter.GetUser2ShaderBinary();
 
             if (shader != null) shader.Export(Path.Combine(dir, $"Shader.bnsh"));
             if (shader_compute != null) shader_compute.Export(Path.Combine(dir, $"ComputeShader.bnsh"));
-            if (shader_user != null) shader_user.Export(Path.Combine(dir, $"UserShader.bnsh"));
+            if (shader_user1 != null) shader_user1.Export(Path.Combine(dir, $"UserShader1.bnsh"));
+            if (shader_user2 != null) shader_user2.Export(Path.Combine(dir, $"UserShader2.bnsh"));
 
             void DumpModel(string filePath)
             {

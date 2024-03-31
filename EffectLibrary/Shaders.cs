@@ -35,6 +35,8 @@ namespace EffectLibrary
                 BinaryData = reader.ReadBytes((int)this.Header.Size);
 
                 BnshFile = new BnshFile(new MemoryStream(BinaryData));
+                File.WriteAllBytes("og.bnsh", BinaryData);
+                BnshFile.Save("new.bnsh");
             }
 
             //compute shader 
