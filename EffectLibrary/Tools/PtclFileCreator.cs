@@ -29,7 +29,7 @@ namespace EffectLibrary.Tools
             ptcl.Textures.BntxFile.Textures.Clear();
             ptcl.Textures.BntxFile.TextureDict.Clear();
             ptcl.Textures.TexDescTable.Descriptors.Clear();
-            ptcl.Primitives.ResFile.Models.Clear();
+            ptcl.Primitives.ResFile?.Models.Clear();
             ptcl.Primitives.PrimDescTable.Descriptors.Clear();
             ptcl.Shaders.ComputeShader.BnshFile.Variations.Clear();
 
