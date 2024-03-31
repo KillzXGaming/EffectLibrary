@@ -1,6 +1,7 @@
 ﻿using BfresLibrary;
 using Newtonsoft.Json;
 using Syroot.NintenTools.NSW.Bntx;
+using Syroot.NintenTools.NSW.Bntx.GFX;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,8 @@ namespace EffectLibrary.Tools
     {
         public static void DumpAll(PtclFile ptcl, string folder)
         {
+            if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
+
             string ptcl_base = Path.Combine(folder, "Base.ptcl");
             ptcl.Save(ptcl_base);
 

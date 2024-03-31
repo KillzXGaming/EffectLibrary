@@ -196,7 +196,7 @@ namespace EffectLibrary
                 this.Entries.Add(new EffectHeader()
                 {
                     EmitterSet_ID = entry.EmitterSet_ID,
-                    External_Model_Idx = entry.ExternalModelID,
+                    External_Model_Idx = (uint)EffectModels.Count,
                     Kind = entry.Kind,
                     Unknown = entry.Unknown,
                     Variant_Count = (ushort)entry.Variants.Count,

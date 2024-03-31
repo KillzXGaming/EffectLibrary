@@ -1,6 +1,7 @@
 ﻿using EffectLibrary;
 using EffectLibrary.Tools;
 using System.IO;
+using System.Text;
 
 namespace EffectConverter
 {
@@ -20,20 +21,33 @@ namespace EffectConverter
 
         static void DumpParticleFile(string path)
         {
-            string ext = Path.GetExtension(path);
             string name = Path.GetFileNameWithoutExtension(path);
 
-            if (ext == ".eff") //namco effect
+            string magic = GetMagic(path);
+
+            if (magic == "EFFN") //namco effect
             {
                 NamcoEffectFile namcoEffect = new NamcoEffectFile(path);
                 PtclFileDumper.DumpAll(namcoEffect.PtclFile, name);
                 //Dump namco effect header info which includes emitter link data
                 namcoEffect.Export(Path.Combine(name, $"NamcoFile.json"));
             }
-            else //assume it is a ptcl file
+            else if (magic == "VFXB") //ptcl file
             {
                 PtclFile ptcl = new PtclFile(path);
                 PtclFileDumper.DumpAll(ptcl, name);
+            }
+            else
+            {
+                throw new Exception($"Unknown file {path} given! Expected EFFN or VFXB magic, but got {magic}.");
+            }
+        }
+
+        static string GetMagic(string path)
+        {
+            using (var reader = new BinaryReader(File.OpenRead(path)))
+            {
+                return Encoding.ASCII.GetString(reader.ReadBytes(4));
             }
         }
 
@@ -55,10 +69,10 @@ namespace EffectConverter
                 NamcoEffectFile namcoEffect = new NamcoEffectFile(newPtcl);
                 namcoEffect.Import(namco_header);
 
-                namcoEffect.Save($"{name}.NEW.ptcl");
+                namcoEffect.Save($"{name}_NEW.eff");
             }
             else
-                newPtcl.Save($"{name}.NEW.ptcl");
+                newPtcl.Save($"{name}_NEW.ptcl");
         }
     }
 }

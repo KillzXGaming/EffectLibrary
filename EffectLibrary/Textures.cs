@@ -36,7 +36,6 @@ namespace EffectLibrary
             {
                 reader.SeekBegin(StartPosition + this.Header.BinaryOffset);
                 BinaryData = reader.ReadBytes((int)this.Header.Size);
-
                 BntxFile = new BntxFile(new MemoryStream(BinaryData));
             }
         }
@@ -85,6 +84,8 @@ namespace EffectLibrary
             {
                 var desc = TexDescTable.Descriptors[descPrimIndex];
                 var idx = BntxFile.TextureDict.IndexOf(desc.Name);
+                if (idx == -1)
+                    throw new Exception($"Failed to find texture {desc.Name} in BNTX!");
 
                 return BntxFile.Textures[idx];
             }
@@ -94,7 +95,7 @@ namespace EffectLibrary
 
         public void AddTexture(ulong id, Texture texture)
         {
-            var descPrimIndex = TexDescTable.Descriptors.FindIndex(x => x.ID == id);
+            var descPrimIndex = TexDescTable.Descriptors.FindIndex(x => x.ID == id && x.Name == texture.Name);
             //ID already added, skip
             if (descPrimIndex != -1)
                 return;
@@ -117,25 +118,9 @@ namespace EffectLibrary
         {
             if (BntxFile == null)
                 return;
-
             //order textures by descriptor
             var textures = BntxFile.Textures.ToList();
             string name = BntxFile.Name;
-
-            BntxFile = new BntxFile();
-            BntxFile.Target = new char[] { 'N', 'X', ' ', ' ' };
-            BntxFile.Name = name;
-            BntxFile.Alignment = 0xC;
-            BntxFile.TargetAddressSize = 0x40;
-            BntxFile.VersionMajor = 0;
-            BntxFile.VersionMajor2 = 4;
-            BntxFile.VersionMinor = 0;
-            BntxFile.VersionMinor2 = 0;
-            BntxFile.Textures = new List<Texture>();
-            BntxFile.TextureDict = new Syroot.NintenTools.NSW.Bntx.ResDict();
-            BntxFile.RelocationTable = new RelocationTable();
-            BntxFile.Flag = 0;
-            
 
             this.TexDescTable.Descriptors = this.TexDescTable.Descriptors.OrderBy(x => x.Name).ToList();
 
@@ -145,6 +130,8 @@ namespace EffectLibrary
             foreach (var desc in this.TexDescTable.Descriptors)
             {
                 var tex = textures.FirstOrDefault(x => x.Name == desc.Name);
+                if (tex == null)
+                    throw new Exception($"Failed to find texture {desc.Name} in BNTX!");
 
                 BntxFile.Textures.Add(tex);
                 BntxFile.TextureDict.Add(tex.Name);
