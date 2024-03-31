@@ -10,9 +10,6 @@ using System.Reflection.PortableExecutable;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using static BfresLibrary.Swizzling.GX2;
-using static EffectLibrary.NamcoEffectFile;
-using static System.Net.WebRequestMethods;
 
 namespace EffectLibrary
 {
