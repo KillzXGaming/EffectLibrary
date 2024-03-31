@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34219.65
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EffectConverter", "EffectConverter\EffectConverter.csproj", "{1D03C4BC-A334-4748-9F4A-48E5B9042AB1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EffectLibrary", "EffectLibrary\EffectLibrary.csproj", "{8FEA9A68-01F0-4E36-929E-E6261FD636AC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1D03C4BC-A334-4748-9F4A-48E5B9042AB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D03C4BC-A334-4748-9F4A-48E5B9042AB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D03C4BC-A334-4748-9F4A-48E5B9042AB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D03C4BC-A334-4748-9F4A-48E5B9042AB1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8FEA9A68-01F0-4E36-929E-E6261FD636AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8FEA9A68-01F0-4E36-929E-E6261FD636AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8FEA9A68-01F0-4E36-929E-E6261FD636AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8FEA9A68-01F0-4E36-929E-E6261FD636AC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D46ED3B8-5462-4EEE-B9BB-9A4F5C3B615C}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+   <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="BfresLibrary">
+      <HintPath>LIb\BfresLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="ShaderLibrary">
+      <HintPath>LIb\ShaderLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="Syroot.BinaryData">
+      <HintPath>LIb\Syroot.BinaryData.dll</HintPath>
+    </Reference>
+    <Reference Include="Syroot.Maths">
+      <HintPath>LIb\Syroot.Maths.dll</HintPath>
+    </Reference>
+    <Reference Include="Syroot.NintenTools.NSW.Bntx">
+      <HintPath>LIb\Syroot.NintenTools.NSW.Bntx.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Textures\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+</Project>
