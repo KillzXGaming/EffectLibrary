@@ -130,6 +130,12 @@ namespace EffectLibrary
             writer.Write(0);
             writer.Write(0);
             writer.Write(0);
+
+            if (this.PtclHeader.Header.VFXVersion >= 0x16)
+            {
+                writer.Write(0);
+                writer.Write(0);
+            }
         }
     }
 
@@ -326,11 +332,11 @@ namespace EffectLibrary
 
 
             int offset = 0;
-            if (this.PtclHeader.Header.VFXVersion >= 37)
+            if (this.PtclHeader.Header.VFXVersion >= 0x16)
                 offset = -8;
 
 
-            writer.Seek((int)pos + 2552, SeekOrigin.Begin);
+            writer.Seek((int)pos + 2552 + offset, SeekOrigin.Begin);
             for (int i = 0; i < 3; i++)
             {
                 if (Data.Samplers[i] != null)
