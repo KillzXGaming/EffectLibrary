@@ -20,7 +20,7 @@ namespace EffectLibrary
             public ushort Num_Effects;
             public ushort Num_External_Models;
             public ushort Multi_Part_Effects;
-            public ushort Header_Chunk_Align = 2;
+            public ushort Header_Chunk_Align = 1;
         }
 
         [StructLayout(LayoutKind.Sequential, Size = 0x10)]
@@ -101,6 +101,12 @@ namespace EffectLibrary
         {
             var writer = new BinaryWriter(stream);
 
+            var align = GetRequiredChunkAlign();
+
+            FileHeader.Header_Chunk_Align = 1;
+            if (align == 4096) FileHeader.Header_Chunk_Align = 1;
+            if (align == 8192) FileHeader.Header_Chunk_Align = 2;
+
             FileHeader.Num_Effects = (ushort)this.Entries.Count;
             FileHeader.Multi_Part_Effects = (ushort)this.EffectVariants.Count;
             FileHeader.Num_External_Models = (ushort)this.ExternalModelNames.Count;
@@ -119,7 +125,6 @@ namespace EffectLibrary
             for (int i = 0; i < this.ExternalBoneNames.Count; i++)
                 writer.WriteZeroTerminatedString(ExternalBoneNames[i]);
 
-            var align = GetRequiredChunkAlign();
 
             writer.AlignBytes(align);
 
@@ -155,7 +160,8 @@ namespace EffectLibrary
                     EmitterSet_ID = entry.EmitterSet_ID,
                     Kind = entry.Kind,
                     Name = this.EntryNames[i],
-                };
+                    Unknown = entry.Unknown,
+            };
                 list.Add(json_entry);
 
                 if (entry.External_Model_Idx < this.EffectModels.Count)

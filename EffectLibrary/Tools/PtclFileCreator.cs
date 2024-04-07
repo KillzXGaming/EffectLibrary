@@ -24,6 +24,8 @@ namespace EffectLibrary.Tools
                 ptcl.Name = info.Name;
             }
 
+            var compute_shaders = ptcl.Shaders.ComputeShader.BnshFile.Variations.ToArray();
+
             ptcl.EmitterList.EmitterSets.Clear();
             ptcl.Shaders.BnshFile.Variations.Clear();
             ptcl.Textures.BntxFile.Textures.Clear();
@@ -32,28 +34,51 @@ namespace EffectLibrary.Tools
             ptcl.Primitives.ResFile?.Models.Clear();
             ptcl.Primitives.PrimDescTable.Descriptors.Clear();
             ptcl.Shaders.ComputeShader.BnshFile.Variations.Clear();
+            
 
-            //each entry is an emitter set
-            foreach (var dir in Directory.GetDirectories(folder))
-            {
-                EmitterSet emitterSet = new EmitterSet();
-                emitterSet.Name = new DirectoryInfo(dir).Name;  
-                ptcl.EmitterList.EmitterSets.Add(emitterSet);
+            var emitter_folders = Directory.GetDirectories(folder);
 
-                foreach (var d in Directory.GetDirectories(dir))
-                    emitterSet.Emitters.Add(LoadEmitter(ptcl, emitterSet, d));
-
-                emitterSet.Emitters = emitterSet.Emitters.OrderBy(x => x.Data.Order).ToList();
-            }
-
+            //order load 
             {
                 string path = Path.Combine(folder, "EmitterSetInfo.txt");
                 if (File.Exists(path))
                 {
                     var info = JsonConvert.DeserializeObject<PtclFileDumper.EmitterSetInfo>(File.ReadAllText(path));
-                    ptcl.EmitterList.EmitterSets = ptcl.EmitterList.EmitterSets.OrderBy(
-                        x => info.Order.IndexOf(x.Name)).ToList();
+                    emitter_folders = emitter_folders.OrderBy(
+                        x => info.Order.IndexOf(new DirectoryInfo(x).Name)).ToArray();
                 }
+            }
+
+            //each entry is an emitter set
+            foreach (var dir in emitter_folders)
+            {
+                EmitterSet emitterSet = new EmitterSet();
+                emitterSet.Name = new DirectoryInfo(dir).Name;  
+                ptcl.EmitterList.EmitterSets.Add(emitterSet);
+
+                var folders = Directory.GetDirectories(dir);
+
+                //order load 
+                {
+                    string path = Path.Combine(dir, "EmitterOrder.txt");
+                    if (File.Exists(path))
+                    {
+                        var info = JsonConvert.DeserializeObject<PtclFileDumper.EmitterSetInfo>(File.ReadAllText(path));
+                        folders = folders.OrderBy(
+                            x => info.Order.IndexOf(new DirectoryInfo(x).Name)).ToArray();
+                    }
+                }
+
+                foreach (var d in folders)
+                    emitterSet.Emitters.Add(LoadEmitter(ptcl, emitterSet, d));
+
+                emitterSet.Emitters = emitterSet.Emitters.OrderBy(x => x.Data.Order).ToList();
+            }
+
+            //ptcl files can have a compute shader present but no references, add it anyways to be accurate
+            if (compute_shaders.Length == 1 && ptcl.Shaders.ComputeShader.BnshFile.Variations.Count == 0)
+            {
+                ptcl.Shaders.ComputeShader.BnshFile.Variations.AddRange(compute_shaders);
             }
 
             return ptcl;
@@ -81,8 +106,10 @@ namespace EffectLibrary.Tools
                     });
                 }
             }
-            foreach (var sub in emitter.SubSections)
-                File.WriteAllBytes(Path.Combine(dir, $"{sub.Header.Magic}.bin"), sub.Data);
+
+            var section_order = new string[] { "FCOV", "EATR", }.ToList();
+
+            emitter.SubSections = emitter.SubSections.OrderBy(x => section_order.IndexOf(x.Header.Magic)).ToList();
 
             foreach (var f in Directory.GetFiles(dir))
             {
@@ -109,6 +136,8 @@ namespace EffectLibrary.Tools
             }
 
             emitter.Data.ShaderReferences.ShaderIndex = ptcl.Shaders.BnshFile.Variations.Count;
+
+            Console.WriteLine($"{emitterSet.Name} {emitter.Name} {emitter.Data.ShaderReferences.ShaderIndex}");
              
             string shader_path          = Path.Combine(dir, "Shader.bnsh");
             string user_shader1_path    = Path.Combine(dir, "UserShader1.bnsh");

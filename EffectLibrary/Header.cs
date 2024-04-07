@@ -20,6 +20,9 @@ namespace EffectLibrary
         public PrimitiveList PrimitiveList = new PrimitiveList();
         public SectionDefault TRMA = new SectionDefault();
 
+        //EFTB
+        public TextureArrayGX2 TexturesGX2 = new TextureArrayGX2();
+
         public PtclFile()
         {
             Header = new BinaryHeader();
@@ -120,6 +123,7 @@ namespace EffectLibrary
                 case "G3PR": Primitives = (PrimitiveInfo)section; break;
                 case "GRSN": Shaders = (ShaderInfo)section; break;
                 case "TRMA": TRMA = (SectionDefault)section; break;
+                case "EFTB": TexturesGX2 = (TextureArrayGX2)section; break;
                 default:
                     throw new Exception($"Section {magic} not supported!");
             }
@@ -139,6 +143,8 @@ namespace EffectLibrary
 
             { "GRTF", typeof(TextureInfo) },
             { "GTNT", typeof(TextureDescTable) },
+
+            { "TEXA", typeof(TextureArrayGX2) }, //Used by EFTB
 
             { "PRMA", typeof(PrimitiveList) },
 
@@ -207,11 +213,14 @@ namespace EffectLibrary
             }
         }
 
-        public static void WriteList(IEnumerable<SectionBase> sections, BinaryWriter writer, PtclFile header)
+        public static void WriteList(IEnumerable<SectionBase> sections, BinaryWriter writer, PtclFile header, bool align = false)
         {
             var list = sections.ToList();
             for (int i = 0; i < list.Count; i++)
             {
+                if (align)
+                    writer.AlignBytes(8);
+
                 list[i].Write(writer, header);
                 list[i].WriteNextOffset(writer, i == list.Count - 1);
             }

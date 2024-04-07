@@ -409,7 +409,7 @@ namespace EffectLibrary
                 for (int i = 0; i < Descriptors.Count; i++)
                 {
                     writer.Write(Descriptors[i].ID);
-                    writer.Write(24); // next offset
+                    writer.Write(i == Descriptors.Count - 1 ? 0 : 24); // next offset
                     writer.Write(8); // always 8?
                     writer.Write(Descriptors[i].PositionIndex);
                     writer.Write(Descriptors[i].NormalIndex);

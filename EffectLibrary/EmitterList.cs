@@ -212,6 +212,8 @@ namespace EffectLibrary
 
         public override void Write(BinaryWriter writer, PtclFile ptclFile)
         {
+            this.Header.ChildrenCount = (ushort)Children.Count;
+
             base.Write(writer, ptclFile);
 
             writer.AlignBytes(256);
@@ -225,7 +227,7 @@ namespace EffectLibrary
             {
                 writer.AlignBytes(8);
                 WriteSubSectionOffset(writer);
-                WriteList(SubSections, writer, ptclFile);
+                WriteList(SubSections, writer, ptclFile, true);
             }
 
             var end_pos = writer.BaseStream.Position;
@@ -239,6 +241,8 @@ namespace EffectLibrary
 
             if (this.Children.Count > 0)
             {
+                writer.AlignBytes(8);
+
                 WriteChildOffset(writer);
                 WriteList(Children, writer, ptclFile);
             }
@@ -278,7 +282,7 @@ namespace EffectLibrary
             Data.ShaderReferences = new ShaderReferences();
             Data.ShaderReferences.Read(reader, PtclHeader);
 
-            Console.WriteLine(Data.ShaderReferences.ToString());
+          //  Console.WriteLine(Data.ShaderReferences.ToString());
 
             reader.SeekBegin(pos + 0x99C + offset);
             reader.BaseStream.Read(Utils.AsSpan(ref Data.ParticleColor));
@@ -565,10 +569,10 @@ namespace EffectLibrary
         public bool val_0x1;
         public byte BillboardType;
         public byte val_0x3;
-        public bool val_0x4;
+        public byte val_0x4;
         public bool val_0x5;
-        public byte val_0x6;
-        public byte val_0x7;
+        public bool val_0x6;
+        public bool val_0x7;
         public bool val_0x8;
         public bool val_0x9;
         public byte val_0xA;
@@ -843,12 +847,12 @@ namespace EffectLibrary
 
         public override void Write(BinaryWriter writer, PtclFile ptclFile)
         {
-            this.Header.Size = (uint)Data.Length + 32;
-
             base.Write(writer, ptclFile);
 
             WriteBinaryOffset(writer);
             writer.Write(Data);
+
+            WriteSectionSize(writer);
         }
     }
 }

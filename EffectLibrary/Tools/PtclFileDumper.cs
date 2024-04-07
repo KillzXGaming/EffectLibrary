@@ -37,7 +37,14 @@ namespace EffectLibrary.Tools
             string dir = Path.Combine(folder, emitterSet.Name);
 
             foreach (var emitter in emitterSet.Emitters)
-                DumpEmitter(emitter, dir);        }
+                DumpEmitter(emitter, dir);
+
+            EmitterSetInfo info = new EmitterSetInfo();
+            foreach (var emitter in emitterSet.Emitters)
+                info.Order.Add(emitter.Name);
+
+            File.WriteAllText(Path.Combine(dir, "EmitterOrder.txt"), JsonConvert.SerializeObject(info, Formatting.Indented));
+        }
 
         public static void DumpEmitter(Emitter emitter, string folder)
         {
