@@ -23,7 +23,7 @@ namespace EffectLibrary
             public ushort Header_Chunk_Align = 1;
         }
 
-        [StructLayout(LayoutKind.Sequential, Size = 0x10)]
+        [StructLayout(LayoutKind.Sequential)]
         public class EffectHeader 
         {
             public ushort Kind;
@@ -34,11 +34,11 @@ namespace EffectLibrary
             public ushort Variant_Count;
         }
 
-        [StructLayout(LayoutKind.Sequential, Size = 0x10)]
+        [StructLayout(LayoutKind.Sequential)]
         public class EffectVariant 
         {
-            public ushort Unknown;
-            public ushort EffectID;
+            public ushort StartFrame;
+            public ushort EmitterSetID;
         }
 
         [JsonIgnore]
@@ -162,7 +162,7 @@ namespace EffectLibrary
                     Kind = entry.Kind,
                     Name = this.EntryNames[i],
                     Unknown = entry.Unknown,
-            };
+                 };
                 list.Add(json_entry);
 
                 int model_idx = (int)entry.External_Model_Idx - 1;
@@ -182,8 +182,8 @@ namespace EffectLibrary
                     json_entry.Variants.Add(new JsonExportVariant()
                     {
                         BoneName = this.ExternalBoneNames[start_idx + j],
-                        EffectID = variant.EffectID,
-                        Unknown = variant.Unknown,
+                        EmitterSetID = variant.EmitterSetID,
+                        StartFrame = variant.StartFrame,
                     });
                 }
             }
@@ -225,14 +225,16 @@ namespace EffectLibrary
                 }
 
                 if (entry.Variants.Count > 0) //0 based index
+                {
                     effect_entry.Variant_Start_Idx = (ushort)(this.EffectVariants.Count + 1);
-
+                    effect_entry.Variant_Count = (ushort)entry.Variants.Count;
+                }
                 foreach (var variant in entry.Variants)
                 {
                     this.EffectVariants.Add(new EffectVariant()
                     {
-                        EffectID = variant.EffectID,
-                        Unknown = variant.Unknown,
+                        EmitterSetID = variant.EmitterSetID,
+                        StartFrame = variant.StartFrame,
                     });
                     ExternalBoneNames.Add(variant.BoneName);
                 }
@@ -260,8 +262,8 @@ namespace EffectLibrary
         {
             public string BoneName;
 
-            public ushort Unknown;
-            public ushort EffectID;
+            public ushort StartFrame;
+            public ushort EmitterSetID;
         }
 
         #endregion
