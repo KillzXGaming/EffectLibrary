@@ -80,6 +80,7 @@ namespace EffectLibrary
             this.EffectVariants = reader.ReadStructs<EffectVariant>(FileHeader.Multi_Part_Effects);
             this.EffectModels = reader.ReadBytes((int)FileHeader.Num_External_Models).ToList();
 
+
             for (int i = 0; i < FileHeader.Num_Effects; i++)
                 this.EntryNames.Add(reader.ReadUtf8Z());
 
@@ -164,19 +165,23 @@ namespace EffectLibrary
             };
                 list.Add(json_entry);
 
-                if (entry.External_Model_Idx < this.EffectModels.Count)
+                int model_idx = (int)entry.External_Model_Idx - 1;
+
+                if (model_idx != -1 && this.EffectModels.Count > 0)
                 {
-                    var model_idx = this.EffectModels[(int)entry.External_Model_Idx];
-                    json_entry.ExternalModelID = model_idx;
-                    json_entry.ExternalModelString = this.ExternalModelNames[json_entry.ExternalModelID];
+                    var model_flag = this.EffectModels[(int)model_idx];
+                    json_entry.ExternalModelFlag = (byte)model_flag;
+                    json_entry.ExternalModelString = this.ExternalModelNames[(int)model_idx];
                 }
+
+                int start_idx = (int)entry.Variant_Start_Idx - 1;
 
                 for (int j = 0; j < entry.Variant_Count;  j++)
                 {
-                    var variant = this.EffectVariants[entry.Variant_Start_Idx + j];
+                    var variant = this.EffectVariants[start_idx + j];
                     json_entry.Variants.Add(new JsonExportVariant()
                     {
-                        BoneName = this.ExternalBoneNames[entry.Variant_Start_Idx + j],
+                        BoneName = this.ExternalBoneNames[start_idx + j],
                         EffectID = variant.EffectID,
                         Unknown = variant.Unknown,
                     });
@@ -199,22 +204,28 @@ namespace EffectLibrary
 
             foreach (var entry in imported)
             {
-                this.Entries.Add(new EffectHeader()
+                var effect_entry = new EffectHeader()
                 {
                     EmitterSet_ID = entry.EmitterSet_ID,
-                    External_Model_Idx = (uint)EffectModels.Count,
+                    External_Model_Idx = 0,
                     Kind = entry.Kind,
                     Unknown = entry.Unknown,
-                    Variant_Count = (ushort)entry.Variants.Count,
-                    Variant_Start_Idx = (ushort)variant_Start_Idx,
-                });
+                    Variant_Count = 0,
+                    Variant_Start_Idx = 0,
+                };
+                this.Entries.Add(effect_entry);
                 EntryNames.Add(entry.Name);
 
                 if (!string.IsNullOrEmpty(entry.ExternalModelString))
                 {
-                    EffectModels.Add(entry.ExternalModelID);
+                    effect_entry.External_Model_Idx = (uint)EffectModels.Count + 1; //0 based index
+
+                    EffectModels.Add(entry.ExternalModelFlag);
                     ExternalModelNames.Add(entry.ExternalModelString);
                 }
+
+                if (entry.Variants.Count > 0) //0 based index
+                    effect_entry.Variant_Start_Idx = (ushort)(this.EffectVariants.Count + 1);
 
                 foreach (var variant in entry.Variants)
                 {
@@ -238,6 +249,7 @@ namespace EffectLibrary
             public ushort Unknown;
             public uint EmitterSet_ID;
 
+            public byte ExternalModelFlag;
             public byte ExternalModelID;
             public string ExternalModelString = "";
 
