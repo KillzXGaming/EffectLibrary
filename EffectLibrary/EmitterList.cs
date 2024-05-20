@@ -227,7 +227,7 @@ namespace EffectLibrary
             {
                 writer.AlignBytes(8);
                 WriteSubSectionOffset(writer);
-                WriteList(SubSections, writer, ptclFile, true);
+                WriteList(SubSections, writer, ptclFile);
             }
 
             var end_pos = writer.BaseStream.Position;

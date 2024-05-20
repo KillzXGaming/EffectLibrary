@@ -213,14 +213,11 @@ namespace EffectLibrary
             }
         }
 
-        public static void WriteList(IEnumerable<SectionBase> sections, BinaryWriter writer, PtclFile header, bool align = false)
+        public static void WriteList(IEnumerable<SectionBase> sections, BinaryWriter writer, PtclFile header)
         {
             var list = sections.ToList();
             for (int i = 0; i < list.Count; i++)
             {
-                if (align)
-                    writer.AlignBytes(8);
-
                 list[i].Write(writer, header);
                 list[i].WriteNextOffset(writer, i == list.Count - 1);
             }
