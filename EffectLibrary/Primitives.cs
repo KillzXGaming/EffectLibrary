@@ -1,4 +1,5 @@
 ﻿using BfresLibrary;
+using Newtonsoft.Json.Linq;
 using Syroot.NintenTools.NSW.Bntx;
 using System;
 using System.Collections.Generic;
@@ -74,12 +75,16 @@ namespace EffectLibrary
 
         public List<int> Indices = new List<int>();
 
+        private byte[] Raw;
+
         public override void Read(BinaryReader reader, PtclFile header)
         {
             base.Read(reader, header);
 
             SeekFromHeader(reader, this.Header.BinaryOffset);
-            ReadBinary(reader);
+            Raw = reader.ReadBytes((int)Header.Size);
+
+            //  ReadBinary(reader);
         }
 
         public override void Write(BinaryWriter writer, PtclFile header)
@@ -89,7 +94,8 @@ namespace EffectLibrary
             WriteBinaryOffset(writer);
 
             long pos = writer.BaseStream.Position;
-            WriterBinary(writer);
+            writer.Write(Raw);
+            //  WriterBinary(writer);
 
             var size = writer.BaseStream.Position - pos;
 
@@ -222,6 +228,8 @@ namespace EffectLibrary
 
         public ResFile ResFile;
 
+        public byte[] BinaryData;
+
         public override void Read(BinaryReader reader, PtclFile ptclFile)
         {
             base.Read(reader, ptclFile);
@@ -244,9 +252,9 @@ namespace EffectLibrary
 
         public override void Write(BinaryWriter writer, PtclFile ptclFile)
         {
-            var bin_data = GetBinaryData();
+            SaveBinary();
 
-            this.Header.Size = (uint)bin_data.Length;
+            this.Header.Size = (uint)BinaryData.Length;
 
             //Descriptor
             this.Header.ChildrenOffset = 32; //descriptors as children
@@ -258,12 +266,12 @@ namespace EffectLibrary
             PrimDescTable.Write(writer, ptclFile);
 
 
-            if (bin_data.Length > 0)
+            if (BinaryData.Length > 0)
             {
                 //binary data next with alignment
                 writer.AlignBytes(4096);
                 WriteBinaryOffset(writer);
-                writer.Write(bin_data);
+                writer.Write(BinaryData);
             }
 
             this.WriteNextOffset(writer, false);
@@ -271,8 +279,15 @@ namespace EffectLibrary
 
         public void LoadBinary(BinaryReader reader)
         {
-            var binData = reader.ReadBytes((int)this.Header.Size);
-            ResFile = new ResFile(new MemoryStream(binData));
+            BinaryData = reader.ReadBytes((int)this.Header.Size);
+            ResFile = new ResFile(new MemoryStream(BinaryData));
+        }
+
+        public void SaveBinary()
+        {
+            var mem = new MemoryStream();
+            ResFile.Save(mem);
+            BinaryData = mem.ToArray();
         }
 
         public byte[] GetBinaryData()

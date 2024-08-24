@@ -10,6 +10,7 @@ using System.Reflection.PortableExecutable;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using static EffectLibrary.NamcoEffectFile;
 
 namespace EffectLibrary
 {
@@ -66,9 +67,18 @@ namespace EffectLibrary
 
         public override string Magic => "ESET";
 
+        public uint Unknown1;
+        public uint Unknown2;
+
+        public uint Unknown3;
+        public uint Unknown4;
+        public uint Unknown5;
+        public uint Unknown6;
+
         public EmitterSet()
         {
             this.Header.Magic = Magic;
+
         }
 
         public override void Read(BinaryReader reader, PtclFile ptclFile)
@@ -114,6 +124,22 @@ namespace EffectLibrary
         {
             reader.ReadBytes(16); //padding
             Name = reader.ReadFixedString(64);
+            reader.ReadUInt32(); //emitter count
+            reader.ReadUInt32(); //0
+            reader.ReadUInt32(); //0
+            reader.ReadUInt32(); //0
+            if (this.PtclHeader.Header.VFXVersion >= 0x16)
+            {
+                Unknown1 = reader.ReadUInt32();
+                Unknown2 = reader.ReadUInt32();
+            }
+            if (this.PtclHeader.Header.VFXVersion >= 0x24)
+            {
+                Unknown3 = reader.ReadUInt32();
+                Unknown4 = reader.ReadUInt32();
+                Unknown5 = reader.ReadUInt32();
+                Unknown6 = reader.ReadUInt32();
+            }
         }
 
         private void WriteBinary(BinaryWriter writer)
@@ -133,8 +159,15 @@ namespace EffectLibrary
 
             if (this.PtclHeader.Header.VFXVersion >= 0x16)
             {
-                writer.Write(0);
-                writer.Write(0);
+                writer.Write(Unknown1);
+                writer.Write(Unknown2);
+            }
+            if (this.PtclHeader.Header.VFXVersion >= 0x24)
+            {
+                writer.Write(Unknown3);
+                writer.Write(Unknown4);
+                writer.Write(Unknown5);
+                writer.Write(Unknown6);
             }
         }
     }
@@ -268,7 +301,7 @@ namespace EffectLibrary
             reader.SeekBegin(pos + 0x50 + offset);
             Data.EmitterStatic = reader.ReadStruct<EmitterStatic>();
 
-            if (this.PtclHeader.Header.VFXVersion >= 36)
+            if (this.PtclHeader.Header.VFXVersion >= 37)
                 offset += 64;
 
             reader.SeekBegin(pos + 0x7F0 + offset);
@@ -290,7 +323,7 @@ namespace EffectLibrary
             
             reader.SeekBegin(pos + 0x9F8 + offset);
 
-            if (PtclHeader.Header.VFXVersion >= 37)
+            if (PtclHeader.Header.VFXVersion >= 36)
                 reader.SeekBegin(spos + 2472);
             else if (PtclHeader.Header.VFXVersion > 21)
                 reader.SeekBegin(spos + 2464);
@@ -336,9 +369,11 @@ namespace EffectLibrary
 
 
             int offset = 0;
-            if (this.PtclHeader.Header.VFXVersion >= 0x16)
+            if (this.PtclHeader.Header.VFXVersion >= 21 &&
+                this.PtclHeader.Header.VFXVersion < 36)
+            {
                 offset = -8;
-
+            }
 
             writer.Seek((int)pos + 2552 + offset, SeekOrigin.Begin);
             for (int i = 0; i < 3; i++)
