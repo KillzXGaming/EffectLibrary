@@ -1,4 +1,5 @@
 ﻿using ShaderLibrary;
+using System.Text;
 
 namespace EffectLibrary
 {
@@ -11,6 +12,7 @@ namespace EffectLibrary
         public byte[] BinaryData;
 
         public BnshFile BnshFile = new BnshFile();
+        public BfshaFile BfshaFile = new BfshaFile();
 
         public BnshFile.ShaderVariation TryGetShader(int index)
         {
@@ -31,12 +33,25 @@ namespace EffectLibrary
             //section contains BNSH
             if (this.Header.Size > 0)
             {
+                //quick peek at header magic
+                SeekFromHeader(reader, this.Header.BinaryOffset);
+                string magic = Encoding.ASCII.GetString(reader.ReadBytes(4));
+
                 SeekFromHeader(reader, this.Header.BinaryOffset);
                 BinaryData = reader.ReadBytes((int)this.Header.Size);
 
-                BnshFile = new BnshFile(new MemoryStream(BinaryData));
-                File.WriteAllBytes("og.bnsh", BinaryData);
-                BnshFile.Save("new.bnsh");
+                switch (magic)
+                {
+                    case "BNSH":
+                        BnshFile = new BnshFile(new MemoryStream(BinaryData));
+                        break;
+                    case "FSHA":
+                        BfshaFile = new BfshaFile(new MemoryStream(BinaryData));
+                        BnshFile = BfshaFile.ShaderModels[0].BnshFile;
+                        break;
+                    default:
+                        throw new Exception($"Unsupported shader format with magic {magic}!");
+                }
             }
 
             //compute shader 
@@ -47,16 +62,27 @@ namespace EffectLibrary
             }
         }
 
-        public override void Write(BinaryWriter writer, PtclFile ptclFile)
+        public void SaveBinary()
         {
-            if (BnshFile != null)
+            if (BfshaFile != null) //uses bfsha (custom shaders)
             {
                 var mem = new MemoryStream();
                 BnshFile.Save(mem);
                 BinaryData = mem.ToArray();
 
-                this.Header.Size = (uint)BinaryData.Length;
             }
+            else if (BnshFile != null) //else uses bnsh
+            {
+                var mem = new MemoryStream();
+                BnshFile.Save(mem);
+                BinaryData = mem.ToArray();
+            }
+        }
+
+        public override void Write(BinaryWriter writer, PtclFile ptclFile)
+        {
+            SaveBinary();
+            this.Header.Size = (uint)BinaryData.Length;
 
             //Compute shader
             this.Header.ChildrenOffset = uint.MaxValue;

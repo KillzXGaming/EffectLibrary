@@ -326,7 +326,7 @@ namespace EffectLibrary
             reader.SeekBegin(pos + 0x9F8 + offset);
 
             if (PtclHeader.Header.VFXVersion >= 36)
-                reader.SeekBegin(spos + 2472);
+                reader.SeekBegin(spos + 2464);
             else if (PtclHeader.Header.VFXVersion > 21)
                 reader.SeekBegin(spos + 2464);
             else
@@ -373,13 +373,9 @@ namespace EffectLibrary
             writer.BaseStream.Write(Utils.AsSpan(ref Data.ParticleColor));
             writer.BaseStream.Write(Utils.AsSpan(ref Data.ParticleScale));
 
-
             int offset = 0;
-            if (this.PtclHeader.Header.VFXVersion >= 21 &&
-                this.PtclHeader.Header.VFXVersion < 36)
-            {
+            if (this.PtclHeader.Header.VFXVersion >= 21)
                 offset = -8;
-            }
 
             writer.Seek((int)pos + 2552 + offset, SeekOrigin.Begin);
             for (int i = 0; i < 3; i++)
