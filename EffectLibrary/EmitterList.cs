@@ -312,10 +312,12 @@ namespace EffectLibrary
 
 
             reader.SeekBegin(pos + 0x910 + offset);
+
+            if (this.PtclHeader.Header.VFXVersion >= 36)
+                reader.SeekBegin(pos + 0x910 + offset - 16);
+
             Data.ShaderReferences = new ShaderReferences();
             Data.ShaderReferences.Read(reader, PtclHeader);
-
-          //  Console.WriteLine(Data.ShaderReferences.ToString());
 
             reader.SeekBegin(pos + 0x99C + offset);
             reader.BaseStream.Read(Utils.AsSpan(ref Data.ParticleColor));
@@ -361,6 +363,10 @@ namespace EffectLibrary
             writer.BaseStream.Write(Utils.AsSpan(ref Data.ParticleData));
 
             writer.Seek((int)pos + 0x910, SeekOrigin.Begin);
+
+            if (this.PtclHeader.Header.VFXVersion >= 36)
+                writer.Seek((int)pos + 0x910 - 16, SeekOrigin.Begin);
+
             Data.ShaderReferences.Write(writer, PtclHeader);
 
             writer.Seek((int)pos + 0x99C, SeekOrigin.Begin);
