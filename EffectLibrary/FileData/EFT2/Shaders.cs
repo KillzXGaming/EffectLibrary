@@ -1,7 +1,8 @@
 ﻿using ShaderLibrary;
+using System.Reflection.PortableExecutable;
 using System.Text;
 
-namespace EffectLibrary
+namespace EffectLibrary.EFT2
 {
     public class ShaderInfo : SectionBase
     {
@@ -117,6 +118,7 @@ namespace EffectLibrary
         public byte[] BinaryData;
 
         public BnshFile BnshFile = new BnshFile();
+        public BfshaFile BfshaFile;
 
         public ComputeShader()
         {
@@ -135,23 +137,54 @@ namespace EffectLibrary
             return null;
         }
 
+        public void SaveBinary()
+        {
+            if (BfshaFile != null) //uses bfsha (custom shaders)
+            {
+                var mem = new MemoryStream();
+                BnshFile.Save(mem);
+                BinaryData = mem.ToArray();
+
+            }
+            else if (BnshFile != null) //else uses bnsh
+            {
+                var mem = new MemoryStream();
+                BnshFile.Save(mem);
+                BinaryData = mem.ToArray();
+            }
+        }
+
         public override void Read(BinaryReader reader, PtclFile ptclFile)
         {
             base.Read(reader, ptclFile);
 
             //section contains BNSH
+            //quick peek at header magic
+            SeekFromHeader(reader, this.Header.BinaryOffset);
+            string magic = Encoding.ASCII.GetString(reader.ReadBytes(4));
+
             SeekFromHeader(reader, this.Header.BinaryOffset);
             BinaryData = reader.ReadBytes((int)this.Header.Size);
 
-            BnshFile = new BnshFile(new MemoryStream(BinaryData));
+            switch (magic)
+            {
+                case "BNSH":
+                    BnshFile = new BnshFile(new MemoryStream(BinaryData));
+                    break;
+                case "FSHA":
+                   // File.WriteAllBytes("og.bfsha", BinaryData);
+                    BfshaFile = new BfshaFile(new MemoryStream(BinaryData));
+                    BnshFile = BfshaFile.ShaderModels[0].BnshFile;
+                  //  BfshaFile.Save("new.bfsha");
+                    break;
+                default:
+                    throw new Exception($"Unsupported shader format with magic {magic}!");
+            }
         }
 
         public override void Write(BinaryWriter writer, PtclFile ptclFile)
         {
-            var mem = new MemoryStream();
-            BnshFile.Save(mem);
-            BinaryData = mem.ToArray();
-            
+            SaveBinary();
             this.Header.Size = (uint)BinaryData.Length;
 
             base.Write(writer, ptclFile);

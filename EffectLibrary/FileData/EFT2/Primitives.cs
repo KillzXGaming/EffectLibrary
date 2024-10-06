@@ -10,7 +10,7 @@ using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EffectLibrary
+namespace EffectLibrary.EFT2
 {
     public class PrimitiveList : SectionBase
     {
@@ -252,7 +252,7 @@ namespace EffectLibrary
 
         public override void Write(BinaryWriter writer, PtclFile ptclFile)
         {
-            SaveBinary();
+           // SaveBinary();
 
             this.Header.Size = (uint)BinaryData.Length;
 

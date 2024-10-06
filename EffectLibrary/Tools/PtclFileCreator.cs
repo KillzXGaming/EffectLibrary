@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using EffectLibrary.EFT2;
 
 namespace EffectLibrary.Tools
 {
@@ -88,7 +89,16 @@ namespace EffectLibrary.Tools
         {
             Emitter emitter = new Emitter(emitterSet);
             emitter.Name = new DirectoryInfo(dir).Name;
-            emitter.Data = JsonConvert.DeserializeObject<EmitterData>(File.ReadAllText(Path.Combine(dir, "EmitterData.json")));
+
+            var jsonsettings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                Converters = new List<JsonConverter>()
+                {
+                    new Newtonsoft.Json.Converters.StringEnumConverter(),
+                },
+            };
+            emitter.Data = JsonConvert.DeserializeObject<EmitterData>(File.ReadAllText(Path.Combine(dir, "EmitterData.json")), jsonsettings);
 
             foreach (var f in Directory.GetFiles(dir))
             {

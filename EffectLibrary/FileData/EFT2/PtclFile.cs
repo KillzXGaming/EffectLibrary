@@ -3,9 +3,8 @@ using System.IO;
 using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Xml.Linq;
-using static System.Collections.Specialized.BitVector32;
 
-namespace EffectLibrary
+namespace EffectLibrary.EFT2
 {
     public class PtclFile
     {

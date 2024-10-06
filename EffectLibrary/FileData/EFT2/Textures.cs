@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static System.Net.Mime.MediaTypeNames;
 
-namespace EffectLibrary
+namespace EffectLibrary.EFT2
 {
 
     public class TextureInfo : SectionBase
@@ -42,7 +42,7 @@ namespace EffectLibrary
 
         public override void Write(BinaryWriter writer, PtclFile ptclFile)
         {
-            if (BntxFile != null)
+          /*  if (BntxFile != null)
             {
                 OrderTextures();
 
@@ -51,7 +51,7 @@ namespace EffectLibrary
                 this.BinaryData = mem.ToArray();
 
                 this.Header.Size = (uint)BinaryData.Length;
-            }
+            }*/
 
             //Descriptor
             this.Header.ChildrenOffset = 32; //descriptors as children

@@ -1,4 +1,5 @@
 ﻿using BfresLibrary;
+using EffectLibrary.EFT2;
 using Newtonsoft.Json;
 using Syroot.NintenTools.NSW.Bntx;
 using Syroot.NintenTools.NSW.Bntx.GFX;
@@ -23,7 +24,9 @@ namespace EffectLibrary.Tools
             File.WriteAllText(Path.Combine(folder, "PtclHeader.txt"), JsonConvert.SerializeObject(header, Formatting.Indented));
 
             foreach (var emitterSet in ptcl.EmitterList.EmitterSets)
+            {
                 DumpEmitterSet(emitterSet, folder);
+            }
 
             EmitterSetInfo info = new EmitterSetInfo();
             foreach (var emitterSet in ptcl.EmitterList.EmitterSets)
@@ -89,7 +92,7 @@ namespace EffectLibrary.Tools
             if (model != null)
                 DumpModel(Path.Combine(dir, $"{emitter.Data.ParticleData.PrimitiveID}.bfres"));
             if (model_volume != null)
-                DumpModel(Path.Combine(dir, $"{emitter.Data.VolumePrimitveID}.bfres"));
+                DumpModel(Path.Combine(dir, $"{emitter.Data.ShapeInfo.PrimitiveIndex}.bfres"));
             if (model_extra != null)
                 DumpModel(Path.Combine(dir, $"{emitter.Data.ParticleData.PrimitiveExID}.bfres"));
 
@@ -118,7 +121,7 @@ namespace EffectLibrary.Tools
             }
 
             int idx = 0;
-            foreach (var sampler in emitter.Data.Samplers)
+            foreach (var sampler in emitter.Data.GetSamplers())
             {
                 var texture = emitter.GetTextureBinary(sampler);
                 if (texture == null)
@@ -129,8 +132,16 @@ namespace EffectLibrary.Tools
             }
 
             File.WriteAllBytes(Path.Combine(dir, "EmitterData.bin"), emitter.BinaryData);
-            string json = JsonConvert.SerializeObject(emitter.Data, Formatting.Indented,
-                      new Newtonsoft.Json.Converters.StringEnumConverter());
+
+            var jsonsettings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                Converters = new List<JsonConverter>()
+                {
+                    new Newtonsoft.Json.Converters.StringEnumConverter(),
+                },
+            };
+            string json = JsonConvert.SerializeObject(emitter.Data, Formatting.Indented, jsonsettings);
 
             File.WriteAllText(Path.Combine(dir, "EmitterData.json"), json);
 

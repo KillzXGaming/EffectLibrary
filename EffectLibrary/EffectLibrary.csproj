@@ -25,11 +25,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Textures\" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <Folder Include="Calculations\Rendering\" />
   </ItemGroup>
 
 </Project>

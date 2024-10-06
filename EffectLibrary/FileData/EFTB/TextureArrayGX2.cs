@@ -9,9 +9,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EffectLibrary
+namespace EffectLibrary.EFT2
 {
-
     public class TextureArrayGX2 : SectionBase
     {
         public override string Magic => "TEXA"; //Texture array
