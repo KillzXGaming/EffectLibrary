@@ -478,10 +478,10 @@ namespace EffectLibrary.EFT2
         public float VolumeFormScaleZ;
         public int PrimEmitType;
         public ulong PrimitiveIndex;
-        public int numDivideCircle;
-        public int numDivideCircleRandom;
-        public int numDivideLine;
-        public int numDivideLineRandom;
+        public int NumDivideCircle;
+        public int NumDivideCircleRandom;
+        public int NumDivideLine;
+        public int NumDivideLineRandom;
 
         [VersionCheck(VersionCompare.Less, 40)]
         public byte IsOnAnotherBinaryVolumePrimitive;
