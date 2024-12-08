@@ -230,6 +230,14 @@ namespace EffectLibrary.EFT2
                 while (true)
                 {
                     EmitterSubSection sect = new();
+
+                    // Peek magic
+                    string magic = Encoding.ASCII.GetString(reader.ReadBytes(4));
+                    reader.BaseStream.Seek(-4, SeekOrigin.Current);
+
+                    if (magic.Substring(0, 2) == "EA") // Emitter animation kind
+                        sect = new EmitterAnimation(magic);
+
                     sect.Read(reader, ptclFile);
                     SubSections.Add(sect);
 
@@ -373,6 +381,7 @@ namespace EffectLibrary.EFT2
 
     public class EmitterSubSection : SectionBase
     {
+        [JsonIgnore]
         public byte[] Data;
 
         public EmitterSubSection() { }
@@ -387,13 +396,17 @@ namespace EffectLibrary.EFT2
             base.Read(reader, ptclFile);
 
             reader.SeekBegin(StartPosition + Header.BinaryOffset);
-
-            //read entire section
-            Data = reader.ReadBytes((int)(Header.Size - Header.BinaryOffset));
+            if (!ReadBinary(reader, ptclFile)) // Read entire section if no reading support
+                Data = reader.ReadBytes((int)(Header.Size - Header.BinaryOffset));
 
             //goto next section
             if (Header.NextSectionOffset != uint.MaxValue)
                 reader.SeekBegin(StartPosition + Header.NextSectionOffset);
+        }
+
+        public virtual bool ReadBinary(BinaryReader reader, PtclFile ptclFile)
+        {
+            return false;
         }
 
         public override void Write(BinaryWriter writer, PtclFile ptclFile)
@@ -401,9 +414,25 @@ namespace EffectLibrary.EFT2
             base.Write(writer, ptclFile);
 
             WriteBinaryOffset(writer);
-            writer.Write(Data);
+            if (!WriteBinary(writer, ptclFile)) // Write entire section if no writing support
+                writer.Write(Data);
 
             WriteSectionSize(writer);
+        }
+
+        public virtual bool WriteBinary(BinaryWriter writer, PtclFile ptclFile)
+        {
+            return false;
+        }
+
+        public virtual void Import(string filePath)
+        {
+            this.Data = File.ReadAllBytes(filePath);
+        }
+
+        public virtual void Export(string filePath)
+        {
+            File.WriteAllBytes(filePath, this.Data);
         }
     }
 }

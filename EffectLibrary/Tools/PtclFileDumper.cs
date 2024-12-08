@@ -146,7 +146,7 @@ namespace EffectLibrary.Tools
             File.WriteAllText(Path.Combine(dir, "EmitterData.json"), json);
 
             foreach (var sub in emitter.SubSections)
-                File.WriteAllBytes(Path.Combine(dir, $"{sub.Header.Magic}.bin"), sub.Data);
+                sub.Export(Path.Combine(dir, $"{sub.Header.Magic}.bin"));
 
             foreach (var child in emitter.Children)
                 DumpEmitter(child, dir);

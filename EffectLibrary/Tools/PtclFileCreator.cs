@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using EffectLibrary.EFT2;
+using System.Reflection.PortableExecutable;
 
 namespace EffectLibrary.Tools
 {
@@ -102,22 +103,31 @@ namespace EffectLibrary.Tools
 
             foreach (var f in Directory.GetFiles(dir))
             {
-                if (!f.EndsWith(".bin"))
+                if (!f.EndsWith(".bin") && !f.EndsWith(".json"))
                     continue;
 
                 if (f.Contains("EmitterData.bin"))
+                {
                     emitter.BinaryData = File.ReadAllBytes(Path.Combine(dir, "EmitterData.bin"));
+                }
+                else if (f.Contains("EmitterData.json"))
+                {
+
+                }
                 else
                 {
                     string magic = Path.GetFileNameWithoutExtension(f);
-                    emitter.SubSections.Add(new EmitterSubSection(magic)
-                    {
-                        Data = File.ReadAllBytes(f),
-                    });
+
+                    var sect = new EmitterSubSection(magic);
+                    if (magic.StartsWith("EA")) // Emitter anim
+                        sect = new EmitterAnimation(magic);
+
+                    sect.Import(f);
+                    emitter.SubSections.Add(sect);
                 }
             }
 
-            var section_order = new string[] { "FCOV", "EATR", }.ToList();
+            var section_order = new string[] { "FCOV",  "CSDP", "CUDP", "CADP", "EAA0", "EAA1", "EATR", }.ToList();
 
             emitter.SubSections = emitter.SubSections.OrderBy(x => section_order.IndexOf(x.Header.Magic)).ToList();
 

@@ -462,7 +462,7 @@ namespace EffectLibrary.EFT2
         public byte VolumeTblIndex;
         public byte VolumeTblIndex64;
         public byte VolumeLatitudeDir;
-        public bool IsGpuEmitter;
+        public byte IsGpuEmitter;
         public float SweepLongitude;
         public float SweepLatitude;
         public float SweepStart;
@@ -546,8 +546,8 @@ namespace EffectLibrary.EFT2
         public bool LoopRandomColor1;
         public bool LoopRandomAlpha1;
         public bool ScaleLoopRandom;
-        public bool prim_flag1;
-        public bool prim_flag2;
+        public byte prim_flag1;
+        public byte prim_flag2;
 
         [VersionCheck(VersionCompare.Less, 50)]
         public int Color0LoopRate;

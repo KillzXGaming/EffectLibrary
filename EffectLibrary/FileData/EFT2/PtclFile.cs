@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using Newtonsoft.Json;
+using System.Globalization;
 using System.IO;
 using System.Reflection.PortableExecutable;
 using System.Text;
@@ -159,6 +160,7 @@ namespace EffectLibrary.EFT2
 
     public class SectionBase
     {
+        [JsonIgnore]
         public virtual string Magic { get; }
 
         internal long StartPosition;
