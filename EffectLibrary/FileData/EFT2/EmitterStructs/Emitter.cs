@@ -432,8 +432,8 @@ namespace EffectLibrary.EFT2
     {
         public bool isOneTime;
         public bool IsWorldGravity;
-        public bool val_0x3;
-        public bool val_0x4;
+        public bool IsEmitDistEnabled;
+        public bool IsWorldOrientedVelocity;
         public uint Start;
         public uint Timing;
         public uint Duration;
@@ -515,7 +515,7 @@ namespace EffectLibrary.EFT2
     public class ParticleData
     {
         public bool InfiniteLife; //Always display
-        public bool val_0x1;
+        public bool IsTriming;
         public byte BillboardType;
         public byte RotType;
         public byte OffsetType;
@@ -546,8 +546,8 @@ namespace EffectLibrary.EFT2
         public bool LoopRandomColor1;
         public bool LoopRandomAlpha1;
         public bool ScaleLoopRandom;
-        public byte prim_flag1;
-        public byte prim_flag2;
+        public byte PrimFlag1;
+        public byte PrimFlag2;
 
         [VersionCheck(VersionCompare.Less, 50)]
         public int Color0LoopRate;
@@ -784,7 +784,7 @@ namespace EffectLibrary.EFT2
         public WrapMode WrapU = WrapMode.Mirror;
         public WrapMode WrapV = WrapMode.Mirror;
         public byte Filter = 0;
-        public byte isSphereMap;
+        public byte IsSphereMap;
 
         public float MaxLOD = 15.0f;
         public float LODBias = 0.0f;
